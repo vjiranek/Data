@@ -1,0 +1,175 @@
+BootStrap: library
+From: ubuntu:22.04
+
+%labels
+    APPLICATION_NAME Leichte Sprache
+    AUTHOR_NAME Vivien Jiranek
+    AUTHOR_EMAIL v.jiranek@protonmail.com
+    YEAR 2024
+
+%help
+    Container for the computation of Leichte Sprache using the EasyGerman Dataset as Data for LLMs 
+
+%post
+    apt-get -y update && apt-get install -y automake build-essential bzip2 wget git default-jre unzip
+    wget -c https://repo.continuum.io/archive/Anaconda3-2022.10-Linux-x86_64.sh
+    bash Anaconda3-2022.10-Linux-x86_64.sh -b -f -p /anaconda3/
+    rm Anaconda3-2022.10-Linux-x86_64.sh
+
+export PATH="/anaconda3/bin:$PATH"
+
+    pip install nvidia-cudnn-cu12==8.9.2.26
+    pip install absl-py==2.0.0
+    pip install torch==1.13.1
+    pip install fsspec==2023.5.0
+    pip install accelerate==0.23.0
+    pip install absl-py==2.0.0
+    pip install accelerate==0.23.0
+    pip install PyHyphen==4.0.3
+    pip install aiohttp==3.8.6
+    pip install aiosignal==1.3.1
+    pip install appdirs==1.4.4
+    pip install astunparse==1.6.3
+    pip install async-timeout==4.0.3
+    pip install attrs==23.1.0
+
+    pip install tensorflow==2.10.0
+    pip install tensorflow-estimator==2.10.0
+    pip install tensorflow-gpu==2.10.0
+    pip install tensorflow-hub==0.16.0
+    pip install tensorflow-io-gcs-filesystem==0.30.0
+    pip install tensorflow-text==2.10.0
+
+    pip install tensorboard==2.10.0
+    pip install tensorboard-data-server==0.6.1
+    pip install tensorboard-plugin-wit==1.8.1
+
+    pip install tokenizers==0.15.1
+    pip install tqdm==4.66.1
+    pip install transformers==4.37.0
+
+    pip install openpyxl==3.0.10
+    pip install bert-score==0.3.13
+    pip install blanc==0.3.4
+    pip install cachetools==5.3.1
+    pip install cchardet==2.1.7
+    pip install certifi==2023.11.17
+    pip install cffi==1.16.0
+    pip install chardet==5.2.0
+    pip install charset-normalizer==2.0.4
+    pip install clang==5.0
+    pip install click==8.1.7
+    pip install colorama==0.4.6
+    pip install contourpy==1.2.0
+    pip install cssselect==1.2.0
+    pip install cycler==0.12.1
+    pip install datasets==2.14.5
+    pip install dill==0.3.7
+    pip install dm-tree==0.1.8
+    pip install docker-pycreds==0.4.0
+    pip install et-xmlfile==1.1.0
+    pip install evaluate==0.4.1
+    pip install exceptiongroup==1.2.0
+    pip install filelock==3.13.1
+    pip install flatbuffers==23.5.26
+    pip install fonttools==4.46.0
+    pip install frozenlist==1.4.0
+    pip install gast==0.4.0
+    pip install gitdb==4.0.10
+    pip install GitPython==3.1.38
+    pip install gmpy2==2.1.2
+    pip install google-auth==2.23.3
+    pip install google-auth-oauthlib==0.4.1
+    pip install google-pasta==0.2.0
+    pip install grpcio==1.59.0
+    pip install h11==0.14.0
+    pip install h5py==3.10.0
+    pip install huggingface-hub==0.20.3
+    pip install idna==3.4
+    pip install importlib-metadata==6.8.0
+    pip install importlib-resources==6.1.1
+    pip install intel-openmp==2024.0.2
+    pip install Jinja2==3.1.3
+    pip install joblib==1.4.0
+    pip install keras==2.10.0
+    pip install keras-core==0.1.7
+    pip install keras-nlp==0.6.3
+    pip install Keras-Preprocessing==1.1.2
+    pip install kiwisolver==1.4.5
+    pip install libclang==16.0.6
+    pip install lxml==4.9.3
+    pip install Markdown==3.5
+    pip install markdown-it-py==3.0.0
+    pip install MarkupSafe==2.1.3
+    pip install matplotlib==3.8.2
+    pip install mdurl==0.1.2
+    pip install ml-dtypes==0.2.0
+    pip install mpmath==1.3.0
+    pip install multidict==6.0.4
+    pip install multiprocess==0.70.15
+    pip install namex==0.0.7
+    pip install networkx==3.1
+    pip install nltk==3.8.1
+    pip install numpy==1.26.3
+    pip install oauthlib==3.2.2
+    pip install opt-einsum==3.3.0
+    pip install outcome==1.3.0.post0
+    pip install packaging==23.2
+    pip install pandas==2.1.1
+    pip install pathtools==0.1.2
+    pip install Pillow==10.1.0
+    pip install portalocker==2.8.2
+    pip install protobuf==3.19.6
+    pip install psutil==5.9.5
+    pip install py-readability-metrics==1.4.5
+    pip install pyarrow==13.0.0
+    pip install pyasn1==0.5.0
+    pip install pyasn1-modules==0.3.0
+    pip install pycurl==7.45.3
+    pip install pycparser==2.21
+    pip install Pygments==2.17.2
+    pip install pyparsing==3.1.1
+    pip install pyphen==0.14.0
+    pip install PySocks==1.7.1
+    pip install python-dateutil==2.8.2
+    pip install pytz==2023.3.post1
+    pip install PyYAML==6.0.1
+    pip install readability==0.3.1
+    pip install readability-lxml==0.8.1
+    pip install regex==2023.12.25
+    pip install requests==2.31.0
+    pip install requests-oauthlib==1.3.1
+    pip install responses==0.18.0
+    pip install rich==13.7.0
+    pip install rouge-score==0.1.2
+    pip install rsa==4.9
+    pip install sacrebleu==2.4.0
+    pip install sacremoses==0.1.1
+    pip install safetensors==0.4.2
+    pip install scikit-learn==1.4.0
+    pip install scipy==1.12.0
+    pip install sentencepiece==0.1.99
+    pip install sentry-sdk==1.32.0
+    pip install setproctitle==1.3.3
+    pip install six==1.16.0
+    pip install smmap==5.0.1
+    pip install sniffio==1.3.0
+    pip install sortedcontainers==2.4.0
+    pip install sympy==1.12
+    pip install tabulate==0.9.0
+    pip install --ignore-installed tbb==2021.11.0
+    pip install termcolor==2.3.0
+    pip install textstat==0.7.3
+    pip install threadpoolctl==3.2.0
+    pip install trio==0.24.0
+    pip install trio-websocket==0.11.1
+    pip install typing_extensions==4.7.1
+    pip install tzdata==2023.3
+    pip install urllib3==2.1.0
+    pip install wandb==0.15.12
+    pip install Werkzeug==3.0.0
+    pip install wrapt==1.14.1
+    pip install wsproto==1.2.0
+    pip install xxhash==3.4.1
+    pip install yarl==1.9.2
+    pip install zipp==3.17.0
