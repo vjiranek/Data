@@ -19,33 +19,35 @@ def check_if_over_max_tokens(directory, blacklist, max, easy):
             words_list = word_tokenize(lines)
             words = len(words_list)
             if words > max:
-                blacklist.append(filename)
+                if filename not in blacklist:
+                    blacklist.append(filename)
                 if easy:
                     pair = 'r' + filename[1:]
                 else:
                     pair = 'e' + filename[1:]
-                blacklist.append(pair)
+                if pair not in blacklist:
+                    blacklist.append(pair)
     return blacklist
 
 
-def remove_duplicates(directory, easy):
+def remove_duplicates(directory, blacklist, easy):
     files = os.listdir(directory)
     all_files = []
-    blacklist = []
     for filename in files:
         with open(os.path.join(directory, filename), mode='r') as f:
             lines = f.read()
-            if lines in all_files:
-                blacklist.append(filename)
+            page_not_found = re.findall('(Seite nicht gefunden)', lines)
+            if lines in all_files or page_not_found or lines == '\n\n':
+                if filename not in blacklist:
+                    blacklist.append(filename)
                 if easy:
                     pair = 'r' + filename[1:]
                 else:
                     pair = 'e' + filename[1:]
-                blacklist.append(pair)
-                #print(filename + ',  ' + pair + '  were removed')
+                if pair not in blacklist:
+                    blacklist.append(pair)
             else:
                 all_files.append(lines)
-    #print('\n- ' + str(len(blacklist)) + ' samples were removed -\n')
     return blacklist
 
 
@@ -83,8 +85,11 @@ def statistics_and_data(directory, blacklist, dataset_identifyer):
     letters = []
     vocab_per_document = []
     count = 0
+    files_removed = 0
     for filename in files:
         with open(os.path.join(directory, filename), mode='r') as f:
+            if filename in blacklist:
+                files_removed += 1
             if filename not in blacklist:
                 lines = f.read()
                 words_list = word_tokenize(lines)
@@ -114,7 +119,7 @@ def count_sentences(text):
 
 
 # print and write out individual statistics
-def print_and_write_data(max_len, num_files, vocab_size, vocab_file, letters, words, sents, language, max_tokens):
+def print_and_write_data(max_tokens, max_len, num_files, vocab_size, vocab_file, letters, words, sents, language):
 
     print('\ntotal number of files: ' + str(num_files))
     print('total number of letters: ' + str(sum(letters)))
@@ -162,26 +167,26 @@ def print_and_write_data(max_len, num_files, vocab_size, vocab_file, letters, wo
 
 
 # all calls to print and write different parts of data
-def print_statistics(r_max_len, r_num_files, r_vocab_size, r_vocab_file, r_letters, r_words, r_sents,
+def print_statistics(max_tokens, r_max_len, r_num_files, r_vocab_size, r_vocab_file, r_letters, r_words, r_sents,
                      e_max_len, e_num_files, e_vocab_size, e_vocab_file, e_letters, e_words, e_sents,
-                     all_max_len, all_num_files, all_vocab_size, all_vocab_file, all_letters, all_words, all_sents, max_tokens):
+                     all_max_len, all_num_files, all_vocab_size, all_vocab_file, all_letters, all_words, all_sents):
 
     print('\n-------------------------------------------------------------------')
     print('\nDocuments Regular German\n')
-    print_and_write_data(r_max_len, r_num_files, r_vocab_size, r_vocab_file, r_letters, r_words, r_sents,
-                         'regular', max_tokens)
+    print_and_write_data(max_tokens, r_max_len, r_num_files, r_vocab_size, r_vocab_file, r_letters, r_words, r_sents,
+                         language='regular')
     print('-------------------------------------------------------------------')
     print('\nDocuments Easy-to-read German\n')
-    print_and_write_data(e_max_len, e_num_files, e_vocab_size, e_vocab_file, e_letters, e_words, e_sents,
-                         'easy-to-read', max_tokens)
+    print_and_write_data(max_tokens, e_max_len, e_num_files, e_vocab_size, e_vocab_file, e_letters, e_words, e_sents,
+                         language='easy-to-read')
     print('-------------------------------------------------------------------')
     print('\nDocuments entire Datset\n')
-    print_and_write_data(all_max_len, all_num_files, all_vocab_size, all_vocab_file, all_letters, all_words, all_sents, '', max_tokens)
+    print_and_write_data(max_tokens, all_max_len, all_num_files, all_vocab_size, all_vocab_file, all_letters, all_words, all_sents, '')
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('max_tokens', type=str, nargs='?',
+    parser.add_argument('max_tokens', type=str,
                         help='max number of word tokens considered for dataset')
     parser.add_argument('dir_regular', type=str, nargs='?',
                         help='directory of documents containing regular german')
@@ -196,10 +201,9 @@ def main():
     dir_regular = args.dir_regular
     dir_easy = args.dir_easy
     dir_all = args.dir_all
-    max_tokens = args.max_tokens
+    max_tokens = int(args.max_tokens)
     name_tokens = ''
     blacklist = []
-
 
     if not dir_regular:
         dir_regular = 'C:/Users/vj771/PycharmProjects/MA/GermanTextSimplification/new_documents/all_regular'
@@ -207,16 +211,13 @@ def main():
         dir_easy = 'C:/Users/vj771/PycharmProjects/MA/GermanTextSimplification/new_documents/all_easy'
     if not dir_all:
         dir_all = 'C:/Users/vj771/PycharmProjects/MA/GermanTextSimplification/new_documents/all_files'
-    if not max_tokens:
-        max_tokens = 4000
+    if max_tokens:
+        blacklist = check_if_over_max_tokens(dir_regular, blacklist, max_tokens, False)
+        blacklist = check_if_over_max_tokens(dir_easy, blacklist, max_tokens, True)
+        name_tokens = '_' + str(max_tokens)
 
-    blacklist = check_if_over_max_tokens(dir_regular, blacklist, int(max_tokens), False)
-    blacklist += check_if_over_max_tokens(dir_easy, blacklist, int(max_tokens), True)
-    name_tokens = '_' + str(max_tokens)
-
-    print('max_tokens {0}'.format(max_tokens))
-    blacklist += remove_duplicates(dir_regular, False)
-    blacklist += remove_duplicates(dir_easy, True)
+    blacklist = remove_duplicates(dir_regular, blacklist, False)
+    blacklist = remove_duplicates(dir_easy, blacklist, True)
     print('\n- ' + str(len(blacklist)) + ' samples were removed -\n')
 
     # Get all the statistical data and the text from each document
@@ -232,10 +233,9 @@ def main():
     all_num_files = len(all_data)
 
     # Print and write data to file
-    print_statistics(r_max_len, r_num_files, r_vocab_size, r_vocab_per_document, r_letters, r_words, r_sents,
+    print_statistics(max_tokens, r_max_len, r_num_files, r_vocab_size, r_vocab_per_document, r_letters, r_words, r_sents,
                      e_max_len, e_num_files, e_vocab_size, e_vocab_per_document, e_letters, e_words, e_sents,
-                     all_max_len, all_num_files, all_vocab_size, all_vocab_per_document, all_letters, all_words,
-                     all_sents, max_tokens
+                     all_max_len, all_num_files, all_vocab_size, all_vocab_per_document, all_letters, all_words, all_sents
                      )
 
     # Compile dataset as csv file
